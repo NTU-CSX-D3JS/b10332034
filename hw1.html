@@ -5,40 +5,45 @@
     </head>
     <body>
         <script>
-            rainbowRad=[80,70,60,50,40,30,20,10];
+            rainbowRad=[100,80,60,40,20];
+            var width=window.innerWidth;
             function RainBow(){
                 var paintable = d3.select("body").append("svg")
-                                                 .attr("width",300)
-                                                 .attr("height",400);
+                                                 .attr("width",960)
+                                                 .attr("height",1000);
                 var wholecircle = paintable.selectAll("circle")
                                            .data(rainbowRad)
                                            .enter()
                                            .append("circle");
-                wholecircle.attr("cx",80)
-                           .attr("cy",80)
+                wholecircle.attr("cx",width/2)
+                           .attr("cy",150)
                            .attr("r",function(d){return d})
                            .style("fill",function(d){
                                             var returnColor;
-                                            if(d===80){
-                                                returnColor="red";
-                                            }else if(d===70){
-                                                returnColor="orange";
+                                            if(d===100){
+                                                returnColor="#FF5151";
+                                            }else if(d===80){
+                                                returnColor="#FFDC35";
                                             }else if(d===60){
-                                                returnColor="yellow";
-                                            }else if(d===50){
-                                                returnColor="green";
+                                                returnColor="#02DF82";
                                             }else if(d===40){
-                                                returnColor="lightblue";
-                                            }else if(d===30){
-                                                returnColor="blue";
-                                            }else if(d===20){
-                                                returnColor="purple";
+                                                returnColor="#0072E3";
                                             }else{
-                                                returnColor="white";
                                                 returnColor="white";
                                             }
                                             return returnColor;
                                 });
+                var bottomrectangle = paintable.append("rect");
+                bottomrectangle.attr("x",(width/2)-100)
+                               .attr("y",150)
+                               .attr("width",200)
+                               .attr("height",100)
+                               .style("fill","white");
+                
+                var words = paintable.append("text").text("Rainbow");
+                words.attr("x",(width/2)-95)
+                     .attr("y",150)
+                     .attr("fill","white");
             }
             RainBow();
         </script>
