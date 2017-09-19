@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+    <body>
+        <script>
+            URL="https://ntu-csx-d3js.github.io/pecu/student.csv"
+            d3.csv(URL,function(data){
+                
+                console.log(data);
+                
+                var w = 500;
+                var h = 300;
+                
+                var m = 50;
+                
+                var Ymax = d3.max(data,function(d){return d.BC;});
+                var Ymin = d3.min(data,function(d){return d.BC;});
+                var Xmax = d3.max(data,function(d){return d.Year;});
+                var Xmin = d3.min(data,function(d){return d.Year;});
+                
+                var xScale = d3.scaleLinear().domain([Xmin,Xmax]).range([m,w-m]);
+                var yScale = d3.scaleLinear().domain([Ymin,Ymax]).range([h-m,m]);
+                
+                var lineBC =d3.line().x(function(d){return xScale(d.Year);}).y(function(d){return yScale(d.BC);});
+                var svg=d3.select('body').append('svg').attr('width',w).attr('height',h);
+                var lineChart =svg.append("path").attr("class","line").attr("stroke","red").attr("stroke-width",3).attr("fill","none").attr("d",function(d){return lineBC(data);});
+                
+                var yAxis = d3.axisLeft(yScale);
+                var xAxis = d3.axisBottom(xScale);
+                var XaxisAppend = svg.append("g").attr("class", "axis").attr("transform", "translate(0, "+(h-m)+")").call(xAxis);
+                var YaxisAppend = svg.append("g").attr("class", "axis").attr("transform", "translate("+m+", 0)").call(yAxis);
+            });
+        </script>
+    </body>
+</html>
