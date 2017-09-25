@@ -16,7 +16,7 @@
                 var m = 50;
                 
                 var Ymax = d3.max(data,function(d){return d.BC;});
-                var Ymin = d3.min(data,function(d){return d.BC;});
+                var Ymin = d3.min(data,function(d){return d.PHD;});
                 var Xmax = d3.max(data,function(d){return d.Year;});
                 var Xmin = d3.min(data,function(d){return d.Year;});
                 
@@ -24,13 +24,20 @@
                 var yScale = d3.scaleLinear().domain([Ymin,Ymax]).range([h-m,m]);
                 
                 var lineBC =d3.line().x(function(d){return xScale(d.Year);}).y(function(d){return yScale(d.BC);});
+                var lineMS =d3.line().x(function(d){return xScale(d.Year);}).y(function(d){return yScale(d.MS);});
+                var linePHD =d3.line().x(function(d){return xScale(d.Year);}).y(function(d){return yScale(d.PHD);});
+                
                 var svg=d3.select('body').append('svg').attr('width',w).attr('height',h);
-                var lineChart =svg.append("path").attr("class","line").attr("stroke","red").attr("stroke-width",3).attr("fill","none").attr("d",function(d){return lineBC(data);});
+                var lineChartBC =svg.append("path").attr("class","line").attr("stroke","red").attr("stroke-width",3).attr("fill","none").attr("d",function(d){return lineBC(data);});
+                var lineChartMS =svg.append("path").attr("class","line").attr("stroke","blue").attr("stroke-width",3).attr("fill","none").attr("d",function(d){return lineMS(data);});
+                var lineChartPHD =svg.append("path").attr("class","line").attr("stroke","green").attr("stroke-width",3).attr("fill","none").attr("d",function(d){return linePHD(data);});
                 
                 var yAxis = d3.axisLeft(yScale);
                 var xAxis = d3.axisBottom(xScale);
                 var XaxisAppend = svg.append("g").attr("class", "axis").attr("transform", "translate(0, "+(h-m)+")").call(xAxis);
                 var YaxisAppend = svg.append("g").attr("class", "axis").attr("transform", "translate("+m+", 0)").call(yAxis);
+                
+                var Title = svg.append("text").attr("x",(w/2)-96).attr("y",m/2).style("font-size","16px").text("國立臺灣大學學生人數統計表")
             });
         </script>
     </body>
