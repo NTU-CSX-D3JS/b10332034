@@ -6,14 +6,16 @@
     <body>
         <script>
 			//Width and height
-			var w = 600;
+			var w = 680;
 			var h = 250;
 			
-			var dataset = [ 100,22,25,6 ];
+			//var dataset = [room:"一般教室(平面)" number:100, room:"一般教室(階梯)" number:22,room:"研討教室" number:25,room:"特用教室" number:6 ];
+
+            var dataset = [100,22,25,6 ];
 
 			var xScale = d3.scale.linear()
 							.domain([0, d3.max(dataset)])
-							.range([0, w]);
+							.range([80, w]);
 
 			var yScale = d3.scale.ordinal()
 							.domain(d3.range(dataset.length))
@@ -22,7 +24,7 @@
 			//Create SVG element
 			var svg = d3.select("body")
 						.append("svg")
-						.attr("width", w)
+						.attr("width", w+80)
 						.attr("height", h);
 
 			//Create bars
@@ -30,16 +32,17 @@
 			   .data(dataset)
 			   .enter()
 			   .append("rect")
-			   .attr("x",0)
+			   .attr("x",80)
 			   .attr("y", function(d, i) {
 			   		return yScale(i);
 			   })
-			   .attr("width",  function(d) {
-			   		return xScale(d);
-			   })
+			   .attr("width",0)
 			   .attr("height",yScale.rangeBand())
-			   .attr("fill", "blue");
-
+			   .attr("fill", "blue")
+               .transition().duration(2000)
+               .attr("width",  function(d) {
+			   		return xScale(d);
+			   });
 			//Create labels
 			svg.selectAll("text")
 			   .data(dataset)
@@ -49,7 +52,7 @@
 			   		return d;
 			   })
 			   .attr("text-anchor", "middle")
-			   .attr("x", function(d){return xScale(d)-15;})
+			   .attr("x", function(d){return xScale(d)+65;})
 			   .attr("y",function(d, i) {
 			   		return yScale(i) + yScale.rangeBand() / 2;
 			   })
