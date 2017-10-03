@@ -15,16 +15,18 @@
                 var m = 50;
                 
                 //y軸是去各地服務的隊數
-                var Ymax = d3.max(data,function(d){return d.north;});
+                var Ymax = d3.max(data,function(d){return parseInt(d.north);});
                 var Ymin = d3.min(data,function(d){return d.oversea;});
-                console.log(Ymin);
+                
+                 console.log(Ymax)
+                
                 var yScale=d3.scaleLinear()
                         .domain([Ymin,Ymax])
                         .range([h-m,m]);
-                
+
                 //x軸是北、中、南、東、離島、海外
-                var Xmax = d3.max(data,function(d){return d.Year;});
-                var Xmin = d3.min(data,function(d){return d.Year;});
+                var Xmax = d3.max(data,function(d){return d.year;});
+                var Xmin = d3.min(data,function(d){return d.year;});
                 
                 var xScale = d3.scaleLinear()
                                 .domain([Xmin,Xmax])
@@ -42,7 +44,7 @@
                     .attr('height',h);
                 var lineChartNorth =svg.append("path")
                                         .attr("class","line")
-                                        .attr("stroke","red")
+                                        .attr("stroke","#ff7575")
                                         .attr("stroke-width",3)
                                         .attr("fill","none")
                                         .attr("d",function(d){
@@ -50,7 +52,7 @@
                                         });
                 var lineChartCentral =svg.append("path")
                                             .attr("class","line")
-                                            .attr("stroke","blue")
+                                            .attr("stroke","#FFA042")
                                             .attr("stroke-width",3)
                                             .attr("fill","none")
                                             .attr("d",function(d){
@@ -58,7 +60,7 @@
                                             });
                 var lineChartSouth =svg.append("path")
                                         .attr("class","line")
-                                        .attr("stroke","green")
+                                        .attr("stroke","#FFDC35")
                                         .attr("stroke-width",3)
                                         .attr("fill","none")
                                         .attr("d",function(d){
@@ -66,7 +68,7 @@
                                         });
                 var lineChartEast =svg.append("path")
                                         .attr("class","line")
-                                        .attr("stroke","blue")
+                                        .attr("stroke","#02DF82")
                                         .attr("stroke-width",3)
                                         .attr("fill","none")
                                         .attr("d",function(d){
@@ -74,7 +76,7 @@
                                         });
                 var lineChartOversea =svg.append("path")
                                             .attr("class","line")
-                                            .attr("stroke","green")
+                                            .attr("stroke","#0080FF")
                                             .attr("stroke-width",3)
                                             .attr("fill","none")
                                             .attr("d",function(d){
