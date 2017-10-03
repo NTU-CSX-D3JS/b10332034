@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+    <body>
+        <script>
+            URL="student_clubs_service_groups.csv"
+            d3.csv(URL,function(data){
+                console.log(data);
+
+                var w = 800;
+                var h = 600;
+                
+                var m = 50;
+                
+                //y軸是去各地服務的隊數
+                var Ymax = d3.max(data,function(d){return d.north;});
+                var Ymin = d3.min(data,function(d){return d.oversea;});
+                console.log(Ymin);
+                var yScale=d3.scaleLinear()
+                        .domain([Ymin,Ymax])
+                        .range([h-m,m]);
+                
+                //x軸是北、中、南、東、離島、海外
+                var Xmax = d3.max(data,function(d){return d.Year;});
+                var Xmin = d3.min(data,function(d){return d.Year;});
+                
+                var xScale = d3.scaleLinear()
+                                .domain([Xmin,Xmax])
+                                .range([m,w-m]);
+                
+                var lineNorth =d3.line().x(function(d){return xScale(d.year);}).y(function(d){return yScale(d.north);});
+                var lineCentral =d3.line().x(function(d){return xScale(d.year);}).y(function(d){return yScale(d.central);});
+                var lineSouth =d3.line().x(function(d){return xScale(d.year);}).y(function(d){return yScale(d.south);});
+                var lineEast =d3.line().x(function(d){return xScale(d.year);}).y(function(d){return yScale(d.east);});
+                var lineOversea =d3.line().x(function(d){return xScale(d.year);}).y(function(d){return yScale(d.oversea);});
+                
+                var svg=d3.select('body')
+                    .append('svg')
+                    .attr('width',w)
+                    .attr('height',h);
+                var lineChartNorth =svg.append("path")
+                                        .attr("class","line")
+                                        .attr("stroke","red")
+                                        .attr("stroke-width",3)
+                                        .attr("fill","none")
+                                        .attr("d",function(d){
+                                            return lineNorth(data);
+                                        });
+                var lineChartCentral =svg.append("path")
+                                            .attr("class","line")
+                                            .attr("stroke","blue")
+                                            .attr("stroke-width",3)
+                                            .attr("fill","none")
+                                            .attr("d",function(d){
+                                                return lineCentral(data);
+                                            });
+                var lineChartSouth =svg.append("path")
+                                        .attr("class","line")
+                                        .attr("stroke","green")
+                                        .attr("stroke-width",3)
+                                        .attr("fill","none")
+                                        .attr("d",function(d){
+                                            return lineSouth(data);
+                                        });
+                var lineChartEast =svg.append("path")
+                                        .attr("class","line")
+                                        .attr("stroke","blue")
+                                        .attr("stroke-width",3)
+                                        .attr("fill","none")
+                                        .attr("d",function(d){
+                                            return lineEast(data);
+                                        });
+                var lineChartOversea =svg.append("path")
+                                            .attr("class","line")
+                                            .attr("stroke","green")
+                                            .attr("stroke-width",3)
+                                            .attr("fill","none")
+                                            .attr("d",function(d){
+                                                return lineOversea(data);});
+                
+                var yAxis = d3.axisLeft(yScale);
+                var xAxis = d3.axisBottom(xScale);
+                var XaxisAppend = svg.append("g").attr("class", "axis").attr("transform", "translate(0, "+(h-m)+")").call(xAxis);
+                var YaxisAppend = svg.append("g").attr("class", "axis").attr("transform", "translate("+m+", 0)").call(yAxis);
+                
+                var Title = svg.append("h1").attr("x",(w/2)-96).attr("y",m/2).text("國立臺灣大學服務隊出隊區域統計表")
+			   });//d3 end
+       
+
+        </script>
+    </body>
+</html>
