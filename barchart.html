@@ -49,14 +49,21 @@
                 return xScale(i);
             })
                 .attr("y", function(d) {
-                return yScale(d);
+                return h-m;
             })
                 .attr("width", xScale.bandwidth())
                 .attr("height", function(d) {
-                return h-m-yScale(d);
+                return 0;
             })
                 .attr("fill", function(d) {
                 return "#CE0000";
+            })
+                .transition().duration(2000)
+                .attr("height", function(d) {
+                return h-m-yScale(d);
+            })
+                .attr("y", function(d) {
+                return yScale(d);
             });
             
             //各長條的數字
@@ -75,18 +82,18 @@
                 return d;
             })
                 .attr("font-family", "sans-serif")
-                .attr("font-size", "11px")
+                .attr("font-size", "14px")
                 .attr("fill", "black")
                 .append('svg:tspan')
                 .attr("x", function(d, i){
                 return xScale(i) + xScale.bandwidth() / 2;
             })
                 .attr("y", function(d) {
-                return h-m+15;
+                return h-m+20;
             })
                 .text(function(d,i) {
                 return data[i].place;
-            });
+            }); 
             
             //旁邊的指標
             var yAxis = d3.axisLeft(yScale);
