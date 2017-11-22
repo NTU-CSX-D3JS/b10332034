@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="style.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+
+<body>
+    <h1>台科社服團歷年出隊地區統計圖</h1>
+    <p>自民國68年到107年 共64次出隊</p>
+    <div class="diagram"></div>
+    <script>
+        
+        var url = "https://ntu-csx-d3js.github.io/b10332034/bar.csv";
+        d3.csv(url, function(data){
+            //Width and height
+            var m=20;  //留邊
+            var n=10;   //留邊
+            var w = 760;
+            var h = 340;
+            
+            var arr = [];
+            for (var i = 0 ; i < data.length; i++){
+                arr[i] = parseInt(data[i].times);
+            }
+            
+            //換算數字與長度
+            var xScale = d3.scaleBand()
+							.domain(d3.range(arr.length))
+							.rangeRound([2*n, w-n]).padding(0.4);
+            
+            var yScale = d3.scaleLinear()
+							.domain([0,d3.max(arr)])
+							.range([h-m,m]);
+            
+            //建立svg
+            var svg = d3.select("div.diagram")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+            
+            //畫出長條圖
+            svg.selectAll("rect")
+                .data(arr)
+                .enter()
+                .append("rect")
+                .attr("x", function(d, i) {
+                return xScale(i);
+            })
+                .attr("y", function(d) {
+                return yScale(d);
+            })
+                .attr("width", xScale.bandwidth())
+                .attr("height", function(d) {
+                return h-m-yScale(d);
+            })
+                .attr("fill", function(d) {
+                return "#CE0000";
+            });
+            
+            //各長條的數字
+            svg.selectAll("text")
+                .data(arr)
+                .enter()
+                .append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", function(d, i) {
+                return xScale(i) + xScale.bandwidth() / 2;
+            })
+                .attr("y", function(d) {
+                return yScale(d)-5;
+            })
+                .text(function(d,i) {
+                return d;
+            })
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "11px")
+                .attr("fill", "black")
+                .append('svg:tspan')
+                .attr("x", function(d, i){
+                return xScale(i) + xScale.bandwidth() / 2;
+            })
+                .attr("y", function(d) {
+                return h-m+15;
+            })
+                .text(function(d,i) {
+                return data[i].place;
+            });
+            
+            //旁邊的指標
+            var yAxis = d3.axisLeft(yScale);
+            var xAxis = d3.axisBottom(xScale);
+            xAxis.tickFormat("");
+            svg.append("g").attr("class", "axis").attr("transform", "translate(0, "+(h-m)+")").call(xAxis);
+            svg.append("g").attr("class", "axis").attr("transform", "translate("+2*n+",0)").call(yAxis);
+            });
+     
+    </script>
+    <footer>
+        <ul>
+            <li>
+                <a href="https://www.facebook.com/sscorp.ntust.edu.tw/?fref=ts">
+                    <span>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Icon_Facebook.svg/479px-Icon_Facebook.svg.png">
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <p class="copyright text-muted">Copyright &copy; Social Service Corporation, National Taiwan University of Science and Technology 2017</p>
+
+    </footer>
+
+
+</body>
+
+</html>
