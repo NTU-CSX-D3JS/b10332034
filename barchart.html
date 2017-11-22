@@ -76,7 +76,7 @@
                 return xScale(i) + xScale.bandwidth() / 2;
             })
                 .attr("y", function(d) {
-                return yScale(d)-5;
+                return h-m;
             })
                 .text(function(d,i) {
                 return d;
@@ -94,6 +94,11 @@
                 .text(function(d,i) {
                 return data[i].place;
             }); 
+            svg.selectAll("text")
+                .transition().duration(2000)
+                .attr("y", function(d) {
+                return yScale(d)-5;
+            });
             
             //旁邊的指標
             var yAxis = d3.axisLeft(yScale);
