@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://d3js.org/d3.v3.min.js"></script>
+        <link href="style.css" rel="stylesheet">
+    </head>
+    <style>
+        table tr:first-child{
+            display: none;
+        }
+    </style>
+    <body>
+        <h1>台科社服團田中之愛出隊組成科系</h1>
+        <p>107冬令服務學習工作隊</p>
+        <div style="display:flex;align-items:center;">
+            <div class="diagram" style="width:70%"></div>
+            <table style="width:5%; line-height: 1.3rem;"></table>
+        </div>
+        <script>
+            var url = "https://ntu-csx-d3js.github.io/b10332034/pie.csv";
+            d3.csv(url, function(data){
+                var w = 400;
+                var h = 400;
+                var r = 200;
+                var color =["#800000","#990000","#E60000","#FFBFBF","#FFABAB","#B20000","#fff2f2","#FF7878","#FF1212","#CC0000","#FF4545"] ;
+                var vis = d3.select('div.diagram').append("svg").data([data]).attr("width", w).attr("height", h).append("svg:g").attr("transform", "translate(" + r + "," + r + ")");
+                var pie = d3.layout.pie().value(function(d){return parseInt(d.number);});
+                // declare an arc generator function
+                var arc = d3.svg.arc().outerRadius(r);
+                // select paths, use arc generator to draw
+                var arcs = vis.selectAll("g.slice")
+                            .data(pie)
+                            .enter()
+                            .append("svg:g")
+                            .attr("class", "slice");
+            var graphpie=arcs.append("svg:path");
+                graphpie.attr("fill", function(d, i){
+                return color[i];
+            })
+                .attr("d", function (d) {
+                return arc(d);
+            });
+                graphpie.attr("zindex","1");
+			// add the text
+			var text=arcs.append("svg:text");
+        text.attr("transform", function(d){
+            d.innerRadius = 230;
+                return "translate(" + arc.centroid(d) + ")";})
+          .attr("text-anchor", "middle")
+          .text( function(d, i) {
+          return data[i].major;});
+                text.attr("zindex","100")
+            });
+        d3.text(url, function(data) {
+                var parsedCSV = d3.csv.parseRows(data);
+
+                var container = d3.select("table")
+                    .selectAll("tr")
+                        .data(parsedCSV).enter()
+                        .append("tr")
+                    .selectAll("td")
+                        .data(function(d) { return d; }).enter()
+                        .append("td")
+                        .text(function(d) { return d; });
+            });
+        </script>
+        <footer>
+        <ul>
+            <li>
+                <a href="https://www.facebook.com/sscorp.ntust.edu.tw/?fref=ts">
+                    <span>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Icon_Facebook.svg/479px-Icon_Facebook.svg.png">
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <p class="copyright text-muted">Copyright &copy; Social Service Corporation, National Taiwan University of Science and Technology 2017</p>
+
+    </footer>
+
+    </body>
+</html>
