@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="style.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+    <body>
+        <h1>台科社服團歷年幹部人數統計圖</h1>
+        <p>自民國89年至106年</p>
+        <div class="diagram-leader"></div>
+
+        <script>
+            url_all="https://ntu-csx-d3js.github.io/b10332034/line-all.csv";
+            url_leader="https://ntu-csx-d3js.github.io/b10332034/line-leader.csv";
+            //畫出隊人數的折線圖
+            d3.csv(url_leader,function(data){
+                
+                var w = 800;
+                var h = 400;
+                var m = 50;
+                
+                var Ymax = d3.max(data,function(d){return parseInt(d.department);});
+                var Ymin = 0;
+                var Xmax = d3.max(data,function(d){
+                    console.log(d.time);
+                    return parseInt(d.time);});
+                var Xmin = d3.min(data,function(d){return parseInt(d.time);});
+                console.log(Ymax);
+                console.log(Ymin);
+                console.log(Xmax);
+                console.log(Xmin);
+                
+                var xScale = d3.scaleLinear().domain([Xmin,Xmax]).range([m,w-m]);
+                
+                var yScale = d3.scaleLinear().domain([Ymin,Ymax]).range([h-m,m]);
+                
+                
+                var lineLeader =d3.line();
+                lineLeader.x(function(d){
+                    return xScale(d.time);})
+                    .y(function(d){
+                    return yScale(parseInt(d.department));});
+                
+                var SvgLeader=d3.select("div.diagram-leader")
+                .append('svg')
+                .attr('width',w)
+                .attr('height',h);
+                
+                var lineChartLeader =SvgLeader.append("path")
+                .attr("class","line")
+                .attr("stroke","red")
+                .attr("stroke-width",3)
+                .attr("fill","none")
+                .attr("d",function(d){return lineLeader(data);});
+                
+                var yAxis = d3.axisLeft(yScale);
+                var xAxis = d3.axisBottom(xScale);
+                var XaxisAppend = SvgLeader.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate(0, "+(h-m)+")")
+                .call(xAxis);
+                var YaxisAppend = SvgLeader.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate("+m+", 0)")
+                .call(yAxis);
+                
+            });
+        </script>
+        <footer>
+        <ul>
+            <li>
+                <a href="https://www.facebook.com/sscorp.ntust.edu.tw/?fref=ts">
+                    <span>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Icon_Facebook.svg/479px-Icon_Facebook.svg.png">
+                    </span>
+                </a>
+            </li>
+        </ul>
+        <p class="copyright text-muted">Copyright &copy; Social Service Corporation, National Taiwan University of Science and Technology 2017</p>
+
+    </footer>
+
+    </body>
+</html>
