@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="final-style.css" rel="stylesheet">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <script src="//d3js.org/topojson.v1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <script>
+        var url_bar = "https://ntu-csx-d3js.github.io/b10332034/bar.csv";
+        var url_pie = "https://ntu-csx-d3js.github.io/b10332034/pie.csv";
+        var url_all = "https://ntu-csx-d3js.github.io/b10332034/linechart_combine.csv";
+        var url_leader = "https://ntu-csx-d3js.github.io/b10332034/line-leader.csv";
+        var w = (window.innerWidth / 2) - 30,
+            h = 400;
+        //畫北中南東的barchart 
+        d3.csv(url_bar, function(data) {
+            //Width and height
+            var m = 20; //留邊
+            var n = 10; //留邊
+            var arr = [];
+            for (var i = 0; i < data.length; i++) {
+                arr[i] = parseInt(data[i].times);
+            };
+
+            //換算數字與長度
+            var xScale = d3.scaleBand()
+                .domain(d3.range(arr.length))
+                .rangeRound([2 * n, w / 3 - n])
+                .padding(0.4);
+
+            var yScale = d3.scaleLinear()
+                .domain([0, d3.max(arr)])
+                .range([h / 3 - m, m]);
+            //建立svg
+            var svg = d3.select("div.barchart")
+                .append("svg")
+                .attr("width", w / 3)
+                .attr("height", h / 3);
+            //畫出長條圖
+            svg.selectAll("rect")
+                .data(arr)
+                .enter()
+                .append("rect")
+                .attr("x", function(d, i) {
+                    return xScale(i);
+                })
+                .attr("y", function(d) {
+                    return h / 3 - m;
+                })
+                .attr("width", xScale.bandwidth())
+                .attr("height", 0)
+                .attr("fill", function(d) {
+                    return "#CE0000";
+                })
+                .transition().duration(2000)
+                .attr("height", function(d) {
+                    return h / 3 - m - yScale(d);
+                })
+                .attr("y", function(d) {
+                    return yScale(d);
+                });
+            //各長條的數字
+            svg.selectAll("text")
+                .data(arr)
+                .enter()
+                .append("text")
+                .attr("text-anchor", "middle")
+                .attr("x", function(d, i) {
+                    return xScale(i) + xScale.bandwidth() / 2;
+                })
+                .attr("y", function(d) {
+                    return h / 3 - m;
+                })
+                .text(function(d, i) {
+                    return d;
+                })
+                .attr("font-family", "sans-serif")
+                .attr("font-size", "0.8rem")
+                .attr("fill", "black")
+                .append('svg:tspan')
+                .attr("x", function(d, i) {
+                    return xScale(i) + xScale.bandwidth() / 2;
+                })
+                .attr("y", function(d) {
+                    return h / 3 - m + 20;
+                })
+                .text(function(d, i) {
+                    if (data[i].place == "North") {
+                        return "北";
+                    }
+                    if (data[i].place == "East") {
+                        return "東";
+                    }
+                    if (data[i].place == "South") {
+                        return "南";
+                    }
+                    if (data[i].place == "Center") {
+                        return "中";
+                    }
+                });
+            svg.selectAll("text")
+                .transition().duration(2000)
+                .attr("y", function(d) {
+                    return yScale(d) - 5;
+                });
+            //旁邊的指標
+            var xAxis = d3.axisBottom(xScale);
+            xAxis.tickFormat("");
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate(0, " + (h / 3 - m) + ")")
+                .call(xAxis);
+
+        });
+        //畫出隊人數組成
+        d3.csv(url_pie, function(data) {
+            var color = d3.scaleOrdinal().range(["#800000", "#990000", "#E60000", "#FFBFBF", "#FFABAB", "#B20000", "#fff2f2", "#FF7878", "#FF1212", "#CC0000", "#FF4545"]);
+            var major = [];
+            for (var i = 0; i < data.length; i++) {
+                major[i] = data[i].major;
+            };
+            var people = [];
+            for (var i = 0; i < data.length; i++) {
+                people[i] = data[i].number;
+            };
+            var classname = [];
+            for (var i = 0; i < data.length; i++) {
+                classname[i] = "hover" + i;
+            }
+            var pie = d3.pie()
+                .value(function(d) {
+                    return d.number;
+                });
+            var outerRadius = w / 4;
+            var innerRadius = w / 10;
+            var arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(outerRadius);
+            var svg = d3.select('div .piechart')
+                .append('svg')
+                .attr('width', w)
+                .attr('height', h);
+
+
+
+            // select paths, use arc generator to draw
+            var arcs = svg.selectAll('g.arc')
+                .data(pie(data))
+                .enter()
+                .append('g')
+                .attr('class', 'arc')
+                .attr('transform', 'translate(' + outerRadius * 1.3 + ', ' + outerRadius * 1.2 + ')');
+
+            arcs.append('path')
+                .attr('fill', function(d, i) {
+                    return color(i);
+                })
+                .attr("opacity", 0.9)
+                .attr('d', arc)
+                .on('mouseover', function(d, i) {
+                    d3.select(this).transition()
+                        .duration(250)
+                        .attr("opacity", 1)
+                        .attr("d", arc.outerRadius(outerRadius * 1.05))
+                        .attr("fill", color(i));
+
+                    d3.select("text.hover" + i)
+                        .transition()
+                        .duration(250)
+                        .attr('font-size', '24px').attr('display', 'flex');
+                })
+                .on('mouseout', function(d, i) {
+                    d3.select(this).transition()
+                        .duration(250)
+                        .attr("opacity", 0.9)
+                        .attr("d", arc.outerRadius(outerRadius))
+                        .attr("fill", color(i));
+
+                    d3.select("text.hover" + i)
+                        .transition()
+                        .duration(250)
+                        .attr('font-size', '18px').attr('display', 'none');
+                });
+
+            var text = arcs.append("svg:text");
+            text.attr("transform", function(d) {
+                    return "translate(" + arc.centroid(d) + ")";
+                })
+                .attr("text-anchor", "middle")
+                .text(function(d, i) {
+                    return data[i].major;
+                }).attr('display', 'none').attr('class', function(d, i) {
+                    return classname[i];
+                });
+
+            text.attr("zindex", "100")
+
+
+            var legendRectSize = 18;
+            var legendSpacing = 4;
+            var legend = svg.selectAll('.legend')
+                .data(color.domain())
+                .enter()
+                .append('g')
+                .attr('class', 'legend')
+                .attr('transform', function(d, i) {
+                    var height = legendRectSize + legendSpacing;
+                    var offset = height * color.length / 2;
+                    var horz = 23 * legendRectSize;
+                    var vert = i * height + offset + 10;
+                    return 'translate(' + horz + ',' + vert + ')';
+
+                });
+
+            legend.append('rect')
+                .attr('width', legendRectSize)
+                .attr('height', legendRectSize)
+                .style('fill', function(d, i) {
+                    return color(i);
+                })
+                .attr("opacity", 0.9)
+                .attr('class', function(d, i) {
+                    return classname[i];
+                });
+            legend.append('text')
+                .attr('x', legendRectSize + legendSpacing)
+                .attr('y', legendRectSize - legendSpacing)
+                .text(function(d) {
+                    return major[d] + " " +
+                        people[d] + " 人";
+                }).attr('class', function(d, i) {
+                    return classname[i];
+                });
+
+
+        });
+        //        //畫出團部人數
+        //        d3.csv(url_leader, function(data) {
+        //            var m = 30;
+        //            var Ymax = d3.max(data, function(d) {
+        //                return parseInt(d.department);
+        //            });
+        //            var Ymin = 0;
+        //            var Xmax = d3.max(data, function(d) {
+        //                return parseInt(d.time);
+        //            });
+        //            var Xmin = d3.min(data, function(d) {
+        //                return parseInt(d.time);
+        //            });
+        //
+        //
+        //            var xScale = d3.scaleLinear().domain([Xmin, Xmax]).range([m, w - m]);
+        //
+        //            var yScale = d3.scaleLinear().domain([Ymin, Ymax]).range([h / 2 - m, m]);
+        //
+        //
+        //            var lineLeader = d3.line();
+        //            lineLeader.x(function(d) {
+        //                    return xScale(d.time);
+        //                })
+        //                .y(function(d) {
+        //                    return yScale(parseInt(d.department));
+        //                });
+        //
+        //
+        //            var SvgLeader = d3.select("div.leaderlinechart")
+        //                .append('svg')
+        //                .attr('width', w)
+        //                .attr('height', h / 2);
+        //
+        //            var lineChartLeader = SvgLeader.append("path")
+        //                .attr("class", "line")
+        //                .attr("stroke", "red")
+        //                .attr("stroke-width", 3)
+        //                .attr("fill", "none")
+        //                .attr("d", function(d) {
+        //                    return lineLeader(data);
+        //                });
+        //
+        //            var yAxis = d3.axisLeft(yScale);
+        //            var xAxis = d3.axisBottom(xScale);
+        //            var XaxisAppend = SvgLeader.append("g")
+        //                .attr("class", "axis")
+        //                .attr("transform", "translate(0, " + (h / 2 - m) + ")")
+        //                .call(xAxis);
+        //            var YaxisAppend = SvgLeader.append("g")
+        //                .attr("class", "axis")
+        //                .attr("transform", "translate(" + m + ", 0)")
+        //                .call(yAxis);
+        //
+        //        });
+        //台灣地圖
+        jQuery(function() {
+            var width = window.innerWidth / 2,
+                height = 600;
+
+            var svg = d3.select("div.mapchart").append("svg")
+                // .attr("class", "svgback")
+                .attr("width", width)
+                .attr("height", height);
+
+            var projection = d3.geoMercator()
+                .center([121, 24])
+                .scale(8000);
+
+            var path = d3.geoPath()
+                .projection(projection);
+
+            d3.json("taiwan.json", function(error, topology) {
+                var g = svg.append("g");
+
+                // 縣市/行政區界線
+                d3.select("svg").append("path").datum(
+                    topojson.mesh(topology,
+                        topology.objects["County_MOI_1060525"],
+                        function(a,
+                            b) {
+                            return a !== b;
+                        })).attr("d", path).attr("class", "subunit-boundary");
+
+                d3.select("g").selectAll("path")
+                    .data(topojson.feature(topology, topology.objects.County_MOI_1060525).features)
+                    .enter()
+                    .append("path")
+                    .attr("d", path)
+                    .attr("class", function(d, i) {
+                        switch (i) {
+                            case 0:
+                                return "0";
+                                break;
+                            case 1:
+                                return "Lienchiang";
+                                break;
+                            case 2:
+                                return "Yilan";
+                                break;
+                            case 3:
+                                return "Changhua";
+                                break;
+                            case 4:
+                                return "Nantou";
+                                break;
+                            case 5:
+                                return "Yunlin";
+                                break;
+                            case 6:
+                                return "Pingtung";
+                                break;
+                            case 7:
+                                return "Taitung";
+                                break;
+                            case 8:
+                                return "Hualien";
+                                break;
+                            case 9:
+                                return "Penghu";
+                                break;
+                            case 10:
+                                return "Keelung";
+                                break;
+                            case 11:
+                                return "HsinchuCity";
+                                break;
+                            case 12:
+                                return "Taipei";
+                                break;
+                            case 13:
+                                return "NewTaipei";
+                                break;
+                            case 14:
+                                return "Taichung";
+                                break;
+                            case 15:
+                                return "Tainan";
+                                break;
+                            case 16:
+                                return "Taoyuan";
+                                break;
+                            case 17:
+                                return "Miaoli";
+                                break;
+                            case 18:
+                                return "Hsinchu";
+                                break;
+                            case 19:
+                                return "ChiayiCity";
+                                break;
+                            case 20:
+                                return "Chiayi";
+                                break;
+                            case 21:
+                                return "Kaohsiung";
+                                break;
+
+                        }
+                    })
+                    .attr("fill", "white")
+                    .on("mouseover", function(d) {
+                        d3.select(this).attr("fill", "#FF7878");
+
+                    }).on("mouseleave", function(d) {
+                        d3.select(this).attr("fill", "white");
+                    });
+            });
+        })
+        //畫出隊人數的折線圖
+        d3.csv(url_all, function(data) {
+            var parse = d3.timeParse("%Y/%m");
+            var format = d3.timeFormat("%Y/%m");
+            var m = 30;
+            var Ymax = d3.max(data, function(d) {
+                return parseInt(d.member);
+            });
+            var Ymin = 0;
+
+            var Xmax = d3.max(data, function(d) {
+                return parse(d.date);
+            });
+            var Xmin = d3.min(data, function(d) {
+                return parse(d.date);
+            });
+
+
+            var xScale = d3.scaleLinear().domain([Xmin, Xmax]).range([m, w * 1.5 - m]);
+
+            var yScale = d3.scaleLinear().domain([Ymin, Ymax]).range([h - m, m]);
+
+
+            var lineLeader = d3.line();
+            lineLeader.x(function(d) {
+                    return xScale(parse(d.date));
+                })
+                .y(function(d) {
+                    return yScale(parseInt(d.leader));
+                });
+            var lineMember = d3.line();
+            lineMember.x(function(d) {
+                    return xScale(parse(d.date));
+                })
+                .y(function(d) {
+                    return yScale(parseInt(d.member));
+                });
+
+            var svg = d3.select("div.peoplelinechart")
+                .append('svg')
+                .attr('width', w * 1.5)
+                .attr('height', h);
+
+            var lineChartLeader = svg.append("path")
+                .attr("class", "line")
+                .attr("stroke", "#a73548")
+                .attr("stroke-width", 2)
+                .attr("fill", "none")
+                .attr("d", function(d) {
+                    return lineLeader(data);
+
+                });
+            var lineChartMember = svg.append("path")
+                .attr("class", "line")
+                .attr("stroke", "#a73548")
+                .attr("stroke-width", 2)
+                .attr("fill", "none")
+                .attr("d", function(d) {
+                    return lineMember(data);
+                });
+            var g = svg.append("g")
+                .attr("transform",
+                    "translate(" + 0 + "," + 0 + ")");
+            g.selectAll("Leaderdot").data(data)
+                .enter()
+                .append("circle")
+                .attr("r", 3)
+                .attr("cx", function(d) {
+                    return xScale(parse(d.date))
+                })
+                .attr("cy", function(d) {
+                    return yScale(parseInt(d.leader));
+                })
+                .attr("class", "Leaderdot")
+                .on("mouseover", function(d) {
+                    d3.select(this).transition().duration(100)
+                        .style("fill", "red")
+                        .attr("r", 6);
+                    d3.select(".hinttitle").html(d.LeaderName).style("font-size", "1rem");
+                    d3.select(".hintnumber").html(d.leader + "人");
+                })
+
+                .on("mouseout", function(d) {
+                    d3.select(this).transition().duration(100)
+                        .style("fill", "#6d2020")
+                        .attr("r", 3);
+                });
+            g.selectAll("Memberdot").data(data)
+                .enter()
+                .append("circle")
+                .attr("r", 3)
+                .attr("cx", function(d) {
+                    return xScale(parse(d.date))
+                })
+                .attr("cy", function(d) {
+                    if (yScale(parseInt(d.member)) != NaN) {
+                        return yScale(parseInt(d.member));
+                    } else {
+                        return -10;
+
+                    }
+
+                })
+                .attr("class", "Memberdot")
+                .on("mouseover", function(d) {
+                    d3.select(this).transition().duration(100)
+                        .style("fill", "red")
+                        .attr("r", 6);
+                    d3.select(".hinttitle").html(d.MemberName).style("font-size", "1rem");
+                    d3.select(".hintnumber").html(d.member + "人");
+                })
+
+                .on("mouseout", function(d) {
+                    d3.select(this).transition().duration(100)
+                        .style("fill", "#6d2020")
+                        .attr("r", 3);
+                });
+
+        });
+    </script>
+    <header>
+        <h5 id="classname" class="row justify-content-md-center">淺談資料視覺化與D3.js期末成果</h5>
+        <h2 class="title row justify-content-md-start">介紹一趟三十年的旅程</h2>
+        <h5 id="sscorpname" class="title row justify-content-md-end">國立臺灣科技大學社會服務團</h5>
+    </header>
+    <div class="page">
+        <h5 class="row subtitle">走過了台灣大大小小的鄉鎮</h5>
+        <div class="row align-items-end">
+            <div class="col col-md-8 mapchart">
+            </div>
+            <div class="col col-md-3">
+                <div class="row detailtext">107冬令彰化田中之愛</div>
+                <div class="row barchart justify-content-md-center"></div>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="page">
+        <h5 class="row subtitle">經歷過了無數的組合</h5>
+        <div class="row justify-content-md-center">
+            <div class="piechart"></div>
+        </div>
+    </div>
+    <div class="page">
+        <h5 class="row subtitle">有潮起也有潮落</h5>
+        <div class="row justify-content-md-center">
+            <div class="leaderlinechart">
+            </div>
+            <div class="peoplelinechart">
+                <div class="hinttext">
+                    <p class="hinttitle"></p>
+                    <p class="hintnumber"></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+        <div class="page">
+            <h5 class="endingtext row justify-content-md-center">不變的是，行動</h5>
+            <h5 class="endingtext row justify-content-md-center">讓我們繼續為這塊土地努力</h5>
+        </div>
+        <footer class="row justify-content-md-center">
+            <p>國立臺灣科技大學社會服務團SSCORP</p>
+            <a href="https://www.facebook.com/sscorp.ntust.edu.tw/?fref=ts"><img width=23px  src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Icon_Facebook.svg/479px-Icon_Facebook.svg.png"></a>
+            <p>Design by <a href="https://www.facebook.com/ivy.huang.33671">Ling-Yu</a></p>
+        </footer>
+</body>
+    
+
+
+</html>
