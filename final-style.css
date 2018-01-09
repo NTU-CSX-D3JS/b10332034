@@ -206,10 +206,13 @@ footer a img {
     background-color: rgba(255, 255, 255, 0.7);
     border-radius: 2rem;
     margin-bottom: 3rem;
-    height: 320px;
+    min-height: 320px;
     text-align: center;
     padding: 2.4rem;
 
+}
+.detailtext text{
+    margin-top: 0.5rem;
 }
 
 .Leaderdot,.Memberdot {
@@ -230,4 +233,7 @@ footer a img {
     border: 1px;
     border-radius: 1rem;
     pointer-events: none;
+}
+.context{
+    padding-left:8rem;
 }
