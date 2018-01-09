@@ -479,6 +479,30 @@
                 .attr("d", function(d) {
                     return lineMember(data);
                 });
+            svg.append("text")
+      .attr("transform", function(d) { return "translate(" + 800 + "," + 230 + ")"; })
+      .attr("x", 3)
+      .attr("dy", "0.35em")
+    .style("background-color","#a73548")
+      .text("全體人數");
+             svg.append("text")
+      .attr("transform", function(d) { return "translate(" + 460 + "," + 110 + ")"; })
+      .attr("x", 3)
+      .attr("dy", "0.35em")
+    .style("background-color","#a73548")
+      .text("100年");
+            svg.append("text")
+      .attr("transform", function(d) { return "translate(" + 0 + "," + 330 + ")"; })
+      .attr("x", 3)
+      .attr("dy", "0.35em")
+    .style("background-color","#a73548")
+      .text("89年");
+            svg.append("text")
+      .attr("transform", function(d) { return "translate(" + 800 + "," + 390 + ")"; })
+      .attr("x", 3)
+      .attr("dy", "0.35em")
+            .style("background-color","#ed405d")
+      .text("幹部人數");
             var g = svg.append("g")
                 .attr("transform",
                     "translate(" + 0 + "," + 0 + ")");
