@@ -17,13 +17,14 @@
         var url_pie = "https://ntu-csx-d3js.github.io/b10332034/pie.csv";
         var url_all = "https://ntu-csx-d3js.github.io/b10332034/linechart_combine.csv";
         var url_leader = "https://ntu-csx-d3js.github.io/b10332034/line-leader.csv";
+        var url_place = "https://ntu-csx-d3js.github.io/b10332034/placelist.csv";
         var w = (window.innerWidth / 2) - 30,
             h = 400;
         //畫北中南東的barchart 
         d3.csv(url_bar, function(data) {
             //Width and height
-            var m = 20; //留邊
-            var n = 10; //留邊
+            var m = 25; //留邊
+            var n = 0; //留邊
             var arr = [];
             for (var i = 0; i < data.length; i++) {
                 arr[i] = parseInt(data[i].times);
@@ -56,8 +57,11 @@
                 })
                 .attr("width", xScale.bandwidth())
                 .attr("height", 0)
+                .attr("class", function(d, i) {
+                    return data[i].place;
+                })
                 .attr("fill", function(d) {
-                    return "#CE0000";
+                    return "rgba(206, 0, 0, 0.73)";
                 })
                 .transition().duration(2000)
                 .attr("height", function(d) {
@@ -241,62 +245,18 @@
 
 
         });
-        //        //畫出團部人數
-        //        d3.csv(url_leader, function(data) {
-        //            var m = 30;
-        //            var Ymax = d3.max(data, function(d) {
-        //                return parseInt(d.department);
-        //            });
-        //            var Ymin = 0;
-        //            var Xmax = d3.max(data, function(d) {
-        //                return parseInt(d.time);
-        //            });
-        //            var Xmin = d3.min(data, function(d) {
-        //                return parseInt(d.time);
-        //            });
-        //
-        //
-        //            var xScale = d3.scaleLinear().domain([Xmin, Xmax]).range([m, w - m]);
-        //
-        //            var yScale = d3.scaleLinear().domain([Ymin, Ymax]).range([h / 2 - m, m]);
-        //
-        //
-        //            var lineLeader = d3.line();
-        //            lineLeader.x(function(d) {
-        //                    return xScale(d.time);
-        //                })
-        //                .y(function(d) {
-        //                    return yScale(parseInt(d.department));
-        //                });
-        //
-        //
-        //            var SvgLeader = d3.select("div.leaderlinechart")
-        //                .append('svg')
-        //                .attr('width', w)
-        //                .attr('height', h / 2);
-        //
-        //            var lineChartLeader = SvgLeader.append("path")
-        //                .attr("class", "line")
-        //                .attr("stroke", "red")
-        //                .attr("stroke-width", 3)
-        //                .attr("fill", "none")
-        //                .attr("d", function(d) {
-        //                    return lineLeader(data);
-        //                });
-        //
-        //            var yAxis = d3.axisLeft(yScale);
-        //            var xAxis = d3.axisBottom(xScale);
-        //            var XaxisAppend = SvgLeader.append("g")
-        //                .attr("class", "axis")
-        //                .attr("transform", "translate(0, " + (h / 2 - m) + ")")
-        //                .call(xAxis);
-        //            var YaxisAppend = SvgLeader.append("g")
-        //                .attr("class", "axis")
-        //                .attr("transform", "translate(" + m + ", 0)")
-        //                .call(yAxis);
-        //
-        //        });
+
         //台灣地圖
+        var listcounty = [];
+        var listname = [];
+        d3.csv(url_place, function(data) {
+            for (var i = 0; i < data.length; i++) {
+                console.log(data[i].Place);
+                console.log(data[i].Name);
+                listcounty[i] = data[i].Place;
+                listname[i] = data[i].Name;
+            }
+        });
         jQuery(function() {
             var width = window.innerWidth / 2,
                 height = 600;
@@ -403,35 +363,84 @@
                     })
                     .attr("fill", "white")
                     .on("mouseover", function(d) {
-                        d3.select(this).attr("fill", "#FF7878");
+                        var j = 0;
+                        d3.select(".detailtitle").append("text").attr("class", "words").html(this.className.baseVal);
+                        for (var i = 0; i < listname.length; i++) {
+                            if (this.className.baseVal == listcounty[i]) {
+                                d3.select(".detailtext").append("text").attr("class", "words").html(listname[i]);
+                                j++;
+                            }
 
-                    }).on("mouseleave", function(d) {
-                        d3.select(this).attr("fill", "white");
+                        }
+                        switch (this.className.baseVal) {
+                            case "Yilan":
+                            case "Keelung":
+                            case "HsinchuCity":
+                            case "Taipei":
+                            case "NewTaipei":
+                            case "Taoyuan":
+                            case "Hsinchu":
+                                d3.select(".North").attr("fill", "red");
+                                break;
+                            case "Taitung":
+                            case "Hualien":
+                                d3.select(".East").attr("fill", "red");
+                                break;
+                            case "Pingtung":
+                            case "Penghu":
+                            case "Tainan":
+                            case "ChiayiCity":
+                            case "Chiayi":
+                            case "Taoyuan":
+                            case "Kaohsiung":
+                                d3.select(".South").attr("fill", "red");
+                                break;
+                            case "Nantou":
+                            case "Changhua":
+                            case "Yunlin":
+                            case "Taichung":
+                            case "Miaoli":
+                                d3.select(".Center").attr("fill", "red");
+                                break;
+
+                        }
+
+                        d3.select(this).attr("fill", function(d) {
+                            var color = ["white", "#FFABAB", "#FF7878", "#B20000", "#800000"];
+                            if (j == 0) {
+                                return color[0];
+                            } else {
+                                return color[1 + Math.floor(j / 5)];
+                            }
+
+                        });
+
+                    })
+                    .on("mouseleave", function(d) {
+                        d3.selectAll(".words").remove();
+                        d3.select(".North").attr("fill", "rgba(206, 0, 0, 0.73)");
+                        d3.select(".Center").attr("fill", "rgba(206, 0, 0, 0.73)");
+                        d3.select(".South").attr("fill", "rgba(206, 0, 0, 0.73)");
+                        d3.select(".East").attr("fill", "rgba(206, 0, 0, 0.73)");
                     });
             });
         })
         //畫出隊人數的折線圖
         d3.csv(url_all, function(data) {
             var parse = d3.timeParse("%Y/%m");
-            var format = d3.timeFormat("%Y/%m");
             var m = 30;
             var Ymax = d3.max(data, function(d) {
                 return parseInt(d.member);
             });
             var Ymin = 0;
-
             var Xmax = d3.max(data, function(d) {
                 return parse(d.date);
             });
             var Xmin = d3.min(data, function(d) {
                 return parse(d.date);
             });
-
-
             var xScale = d3.scaleLinear().domain([Xmin, Xmax]).range([m, w * 1.5 - m]);
-
             var yScale = d3.scaleLinear().domain([Ymin, Ymax]).range([h - m, m]);
-
 
             var lineLeader = d3.line();
             lineLeader.x(function(d) {
@@ -464,7 +473,7 @@
                 });
             var lineChartMember = svg.append("path")
                 .attr("class", "line")
-                .attr("stroke", "#a73548")
+                .attr("stroke", "#ed405d")
                 .attr("stroke-width", 2)
                 .attr("fill", "none")
                 .attr("d", function(d) {
@@ -476,7 +485,7 @@
             g.selectAll("Leaderdot").data(data)
                 .enter()
                 .append("circle")
-                .attr("r", 3)
+                .attr("r", 6)
                 .attr("cx", function(d) {
                     return xScale(parse(d.date))
                 })
@@ -487,20 +496,20 @@
                 .on("mouseover", function(d) {
                     d3.select(this).transition().duration(100)
                         .style("fill", "red")
-                        .attr("r", 6);
+                        .attr("r", 12);
                     d3.select(".hinttitle").html(d.LeaderName).style("font-size", "1rem");
-                    d3.select(".hintnumber").html(d.leader + "人");
+                    d3.select(".hintnumber").html("幹部人數 "+d.leader + "人");
                 })
 
                 .on("mouseout", function(d) {
                     d3.select(this).transition().duration(100)
                         .style("fill", "#6d2020")
-                        .attr("r", 3);
+                        .attr("r", 6);
                 });
             g.selectAll("Memberdot").data(data)
                 .enter()
                 .append("circle")
-                .attr("r", 3)
+                .attr("r", 6)
                 .attr("cx", function(d) {
                     return xScale(parse(d.date))
                 })
@@ -517,15 +526,14 @@
                 .on("mouseover", function(d) {
                     d3.select(this).transition().duration(100)
                         .style("fill", "red")
-                        .attr("r", 6);
+                        .attr("r", 12);
                     d3.select(".hinttitle").html(d.MemberName).style("font-size", "1rem");
-                    d3.select(".hintnumber").html(d.member + "人");
+                    d3.select(".hintnumber").html("全體人數 "+d.member + "人");
                 })
-
                 .on("mouseout", function(d) {
                     d3.select(this).transition().duration(100)
                         .style("fill", "#6d2020")
-                        .attr("r", 3);
+                        .attr("r", 6);
                 });
 
         });
@@ -537,25 +545,29 @@
     </header>
     <div class="page">
         <h5 class="row subtitle">走過了台灣大大小小的鄉鎮</h5>
-        <div class="row align-items-end">
+        <p class="row context">自民國68年到107年</p>
+        <div class="row align-items-start">
             <div class="col col-md-8 mapchart">
             </div>
             <div class="col col-md-3">
-                <div class="row detailtext">107冬令彰化田中之愛</div>
-                <div class="row barchart justify-content-md-center"></div>
+                <div class="row detailtext">
+                    <div class="detailtitle"></div>
+                    <div class="barchart justify-content-md-center"></div>
+                </div>
             </div>
-
         </div>
 
     </div>
     <div class="page">
-        <h5 class="row subtitle">經歷過了無數的組合</h5>
+        <h5 class="row subtitle">經歷過了各種的組合</h5>
+        <p class="row context">每次的組合都不一樣，下圖是107冬的統計圖</p>
         <div class="row justify-content-md-center">
             <div class="piechart"></div>
         </div>
     </div>
     <div class="page">
         <h5 class="row subtitle">有潮起也有潮落</h5>
+        <p class="row context">自89年到107年，89年以前資料不足</p>
         <div class="row justify-content-md-center">
             <div class="leaderlinechart">
             </div>
@@ -568,15 +580,15 @@
 
         </div>
     </div>
-        <div class="page">
-            <h5 class="endingtext row justify-content-md-center">不變的是，行動</h5>
-            <h5 class="endingtext row justify-content-md-center">讓我們繼續為這塊土地努力</h5>
-        </div>
-        <footer class="row justify-content-md-center">
-            <p>國立臺灣科技大學社會服務團SSCORP</p>
-            <a href="https://www.facebook.com/sscorp.ntust.edu.tw/?fref=ts"><img width=23px  src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Icon_Facebook.svg/479px-Icon_Facebook.svg.png"></a>
-            <p>Design by <a href="https://www.facebook.com/ivy.huang.33671">Ling-Yu</a></p>
-        </footer>
+    <div class="page">
+        <h5 class="endingtext row justify-content-md-center">不變的是，行動</h5>
+        <h5 class="endingtext row justify-content-md-center">讓我們繼續為這塊土地努力</h5>
+    </div>
+    <footer class="row justify-content-md-center">
+        <p>國立臺灣科技大學社會服務團SSCORP</p>
+        <a href="https://www.facebook.com/sscorp.ntust.edu.tw/?fref=ts"><img width=23px  src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Icon_Facebook.svg/479px-Icon_Facebook.svg.png"></a>
+        <p>Design by <a href="https://www.facebook.com/ivy.huang.33671">Ling-Yu</a></p>
+    </footer>
 </body>
     
 
